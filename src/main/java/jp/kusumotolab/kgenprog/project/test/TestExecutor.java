@@ -27,4 +27,6 @@ public interface TestExecutor {
 
   default void finish() {
   }
+
+  double getBuildTime();
 }

@@ -19,6 +19,7 @@ import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.output.Exporters;
+import jp.kusumotolab.kgenprog.project.MeasureBuildAndTestTime;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestResult;
@@ -84,6 +85,7 @@ public class KGenProgMain {
    * @return 得られた解（全てのテストケースを通過するプログラム）
    */
   public List<Variant> run() throws RuntimeException {
+    MeasureBuildAndTestTime measureBuildAndTestTime = new MeasureBuildAndTestTime();
     logConfig();
 
     testExecutor.initialize();
@@ -92,6 +94,8 @@ public class KGenProgMain {
         sourceCodeGeneration, sourceCodeValidation, testExecutor, variantSelection);
     final VariantStore variantStore = new VariantStore(config, strategies);
     final Variant initialVariant = variantStore.getInitialVariant();
+//    measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
+    measureBuildAndTestTime.addTestTime(initialVariant.getTestResults().getTestTime());
 
     logInitialFailedTests(initialVariant.getTestResults());
 
@@ -118,6 +122,10 @@ public class KGenProgMain {
       // 世代別サマリの出力
       logGenerationSummary(stopwatch.toString(), variantsByMutation, variantsByCrossover);
       stopwatch.split();
+      variantStore.getAllVariants().forEach(variant -> {
+//        measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
+        measureBuildAndTestTime.addTestTime(variant.getTestResults().getTestTime());
+      });
       variantStore.updateVariantCounts(
           Stream.concat(variantsByMutation.stream(), variantsByCrossover.stream())
               .collect(Collectors.toList()));
@@ -154,6 +162,8 @@ public class KGenProgMain {
         variantStore.getSyntaxValidVariantCount(), variantStore.getBuildSuccessVariantCount(),
         stopwatch.toString(), exitStatus);
 
+    measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
+    log.info(measureBuildAndTestTime.getMessage());
     return variantStore.getFoundSolutions(config.getRequiredSolutionsCount());
   }
 

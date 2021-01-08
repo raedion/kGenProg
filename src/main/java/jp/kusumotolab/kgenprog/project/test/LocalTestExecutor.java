@@ -1,5 +1,6 @@
 package jp.kusumotolab.kgenprog.project.test;
 
+import org.apache.commons.lang3.time.StopWatch;
 import jp.kusumotolab.kgenprog.Configuration;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
@@ -18,6 +19,7 @@ public class LocalTestExecutor implements TestExecutor {
 
   private final Configuration config;
   private final ProjectBuilder projectBuilder;
+  private double buildTime;
 
   /**
    * コンストラクタ．<br>
@@ -27,6 +29,7 @@ public class LocalTestExecutor implements TestExecutor {
   public LocalTestExecutor(final Configuration config) {
     this.config = config;
     projectBuilder = new ProjectBuilder(config.getTargetProject());
+    this.buildTime = 0;
   }
 
   /**
@@ -40,11 +43,18 @@ public class LocalTestExecutor implements TestExecutor {
       return new EmptyTestResults("build failed.");
     }
 
+    StopWatch stopWatch = StopWatch.createStarted();
     final BuildResults buildResults = projectBuilder.build(generatedSourceCode);
+    stopWatch.stop();
+    buildTime += stopWatch.getTime();
     final TestThread testThread = new TestThread(buildResults, config.getTargetProject(),
         config.getExecutedTests(), config.getTestTimeLimitSeconds());
     testThread.run();
 
     return testThread.getTestResults();
+  }
+
+  public double getBuildTime() {
+    return buildTime;
   }
 }

@@ -2,6 +2,7 @@ package jp.kusumotolab.kgenprog.project.test;
 
 import jp.kusumotolab.kgenprog.project.ASTLocation;
 import jp.kusumotolab.kgenprog.project.ProductSourcePath;
+import jp.kusumotolab.kgenprog.project.build.BuildResults;
 
 /**
  * テスト失敗時のテスト結果．<br>
@@ -13,12 +14,12 @@ public class EmptyTestResults extends TestResults {
 
   private final String cause;
 
-  /**
-   * @deprecated
-   */
-  @Deprecated
-  public EmptyTestResults() {
-    this("");
+  public EmptyTestResults(final BuildResults buildResults) {
+    super(buildResults);
+    this.cause = buildResults.diagnostics.getDiagnostics()
+        .stream()
+        .map(d -> d.getMessage(null))
+        .reduce("", String::concat);
   }
 
   public EmptyTestResults(final String cause) {
@@ -81,5 +82,14 @@ public class EmptyTestResults extends TestResults {
    */
   public String getCause() {
     return cause;
+  }
+
+  /**
+   * {@inheritDoc}<br>
+   * Double.NaNを返す
+   */
+  @Override
+  public double getTestTime() {
+    return Double.NaN;
   }
 }
