@@ -20,6 +20,8 @@ public class LocalTestExecutor implements TestExecutor {
   private final Configuration config;
   private final ProjectBuilder projectBuilder;
   private double buildTime;
+  private long buildCount;
+  private long trybuildCount;
 
   /**
    * コンストラクタ．<br>
@@ -30,6 +32,7 @@ public class LocalTestExecutor implements TestExecutor {
     this.config = config;
     projectBuilder = new ProjectBuilder(config.getTargetProject());
     this.buildTime = 0;
+    buildCount = 0;trybuildCount=0;
   }
 
   /**
@@ -38,15 +41,17 @@ public class LocalTestExecutor implements TestExecutor {
    */
   @Override
   public TestResults exec(final Variant variant) {
+    trybuildCount++;
     final GeneratedSourceCode generatedSourceCode = variant.getGeneratedSourceCode();
     if (!generatedSourceCode.isGenerationSuccess()) {
       return new EmptyTestResults("build failed.");
     }
 
-    StopWatch stopWatch = StopWatch.createStarted();
+    final StopWatch stopWatch = StopWatch.createStarted();
     final BuildResults buildResults = projectBuilder.build(generatedSourceCode);
     stopWatch.stop();
     buildTime += stopWatch.getTime();
+    buildCount++;
     final TestThread testThread = new TestThread(buildResults, config.getTargetProject(),
         config.getExecutedTests(), config.getTestTimeLimitSeconds());
     testThread.run();
@@ -56,5 +61,9 @@ public class LocalTestExecutor implements TestExecutor {
 
   public double getBuildTime() {
     return buildTime;
+  }
+  public long getBuildCount() {
+    System.out.println("Try Build Count: " + trybuildCount);
+    return buildCount;
   }
 }

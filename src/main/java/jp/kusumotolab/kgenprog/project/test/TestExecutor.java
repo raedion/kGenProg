@@ -29,4 +29,5 @@ public interface TestExecutor {
   }
 
   double getBuildTime();
+  long getBuildCount();
 }

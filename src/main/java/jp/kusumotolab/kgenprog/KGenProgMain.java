@@ -163,6 +163,7 @@ public class KGenProgMain {
         stopwatch.toString(), exitStatus);
 
     measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
+    measureBuildAndTestTime.setBuildCount(testExecutor.getBuildCount());
     log.info(measureBuildAndTestTime.getMessage());
     return variantStore.getFoundSolutions(config.getRequiredSolutionsCount());
   }
