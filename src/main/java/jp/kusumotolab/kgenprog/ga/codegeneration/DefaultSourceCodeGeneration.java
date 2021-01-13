@@ -2,6 +2,7 @@ package jp.kusumotolab.kgenprog.ga.codegeneration;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.time.StopWatch;
 import jp.kusumotolab.kgenprog.ga.variant.Base;
 import jp.kusumotolab.kgenprog.ga.variant.Gene;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
@@ -48,15 +49,20 @@ public class DefaultSourceCodeGeneration implements SourceCodeGeneration {
     final Variant initialVariant = variantStore.getInitialVariant();
     GeneratedSourceCode generatedSourceCode = initialVariant.getGeneratedSourceCode();
 
+    StopWatch stopWatch = StopWatch.createStarted();
     for (final Base base : gene.getBases()) {
       final Operation operation = base.getOperation();
       generatedSourceCode = operation.apply(generatedSourceCode, base.getTargetLocation());
 
       // immediately return failed source code if operation#apply was failed
       if (!generatedSourceCode.isGenerationSuccess()) {
+        stopWatch.stop();
+        generatedSourceCode.setGenASTTime(stopWatch.getTime());
         return generatedSourceCode;
       }
     }
+    stopWatch.stop();
+    generatedSourceCode.setGenASTTime(stopWatch.getTime());
 
     if (sourceCodeMap.containsKey((generatedSourceCode.getMessageDigest()))) {
       final ReproducedStatus status = sourceCodeMap.get(generatedSourceCode.getMessageDigest());

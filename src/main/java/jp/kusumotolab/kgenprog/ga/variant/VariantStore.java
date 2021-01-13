@@ -17,6 +17,9 @@ import jp.kusumotolab.kgenprog.fl.Suspiciousness;
 import jp.kusumotolab.kgenprog.ga.validation.Fitness;
 import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation.Input;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
+import jp.kusumotolab.kgenprog.project.build.BuildResults;
+import jp.kusumotolab.kgenprog.project.build.EmptyBuildResults;
 import jp.kusumotolab.kgenprog.project.test.EmptyTestResults;
 import jp.kusumotolab.kgenprog.project.test.TestResults;
 
@@ -39,6 +42,7 @@ public class VariantStore {
   private int variantCount;
   private int syntaxValidVariantCount;
   private int buildSuccessVariantCount;
+  private MeasureEachProcessTime measureEachProcessTime;
 
   /**
    * @param config 設定
@@ -48,6 +52,7 @@ public class VariantStore {
     this.config = config;
     this.strategies = strategies;
 
+    measureEachProcessTime = new MeasureEachProcessTime();
     variantCounter = new AtomicLong();
     generation = new OrdinalNumber(0);
     elementReplacer = newElementReplacer(config.isHistoryRecord());
@@ -74,6 +79,7 @@ public class VariantStore {
    */
   public Variant createVariant(final Gene gene, final HistoricalElement element) {
     final GeneratedSourceCode sourceCode = strategies.execSourceCodeGeneration(this, gene);
+    measureEachProcessTime.addASTGenTime(sourceCode.getGenASTTime());
     return createVariant(gene, sourceCode, elementReplacer.apply(element));
   }
 
@@ -212,6 +218,7 @@ public class VariantStore {
   private Variant createInitialVariant() {
     final GeneratedSourceCode sourceCode =
         strategies.execASTConstruction(config.getTargetProject());
+    measureEachProcessTime.addASTGenTime(sourceCode.getGenASTTime());
     final HistoricalElement newElement = new OriginalHistoricalElement();
     return createVariant(new Gene(Collections.emptyList()), sourceCode,
         elementReplacer.apply(newElement));
@@ -225,8 +232,11 @@ public class VariantStore {
         .cast(Variant.class)
         .cache();
 
+    final Single<BuildResults> buildSingle =
+        sourceCode.shouldBeTested() ? strategies.execAsyncBuildExecutor(variantSingle)
+            .cache() : Single.just(new EmptyBuildResults());
     final Single<TestResults> resultsSingle =
-        sourceCode.shouldBeTested() ? strategies.execAsyncTestExecutor(variantSingle)
+        sourceCode.shouldBeTested() ? strategies.execAsyncTestExecutor(buildSingle)
             .cache() : Single.just(new EmptyTestResults("build failed or reproduced."));
     variant.setTestResultsSingle(resultsSingle);
 
@@ -244,6 +254,8 @@ public class VariantStore {
 
     variant.subscribe();
 
+    measureEachProcessTime.addTestTime(variant.getTestResults().getTestTime());
+    measureEachProcessTime.addBuildTime(buildSingle.blockingGet().buildTime);
     return variant;
   }
 
@@ -274,5 +286,9 @@ public class VariantStore {
     buildSuccessVariantCount += variants.stream()
         .filter(Variant::isBuildSucceeded)
         .count();
+  }
+
+  public String getMessage() {
+    return measureEachProcessTime.getMessage();
   }
 }

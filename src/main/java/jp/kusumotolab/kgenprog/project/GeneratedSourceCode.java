@@ -20,6 +20,7 @@ public class GeneratedSourceCode {
   private final List<GeneratedAST<TestSourcePath>> testAsts;
   private final Map<SourcePath, GeneratedAST<ProductSourcePath>> pathToAst;
   private final String messageDigest;
+  private double genASTTime = 0d;
 
   /**
    * @param productAsts ProductソースコードのAST
@@ -99,5 +100,13 @@ public class GeneratedSourceCode {
     } catch (final NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void setGenASTTime(final double genASTTime) {
+    this.genASTTime = genASTTime;
+  }
+
+  public double getGenASTTime() {
+    return genASTTime;
   }
 }
