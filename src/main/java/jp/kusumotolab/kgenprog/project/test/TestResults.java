@@ -57,7 +57,6 @@ public class TestResults {
     testResultList.forEach(testResult -> this.value.put(testResult.executedTestFQN, testResult));
     this.buildResults = buildResults;
     this.testExecTime = testExecTime;
-    System.out.println("TestTime: " + testExecTime);
   }
 
   /**

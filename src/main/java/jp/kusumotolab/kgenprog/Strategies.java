@@ -16,7 +16,7 @@ import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
 import jp.kusumotolab.kgenprog.project.build.BuildResults;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
-import jp.kusumotolab.kgenprog.project.test.BuildExecutor;
+import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestResults;
 

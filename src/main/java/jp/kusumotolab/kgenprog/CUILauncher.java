@@ -21,8 +21,8 @@ import jp.kusumotolab.kgenprog.ga.validation.DefaultCodeValidation;
 import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.output.Exporters;
-import jp.kusumotolab.kgenprog.project.test.BuildExecutor;
-import jp.kusumotolab.kgenprog.project.test.LocalBuildExecutor;
+import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
+import jp.kusumotolab.kgenprog.project.build.LocalBuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.LocalTestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 

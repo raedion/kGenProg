@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.time.StopWatch;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -36,6 +37,7 @@ public class JDTASTConstruction {
 
   public GeneratedSourceCode constructAST(final List<ProductSourcePath> productSourcePaths,
       final List<TestSourcePath> testSourcePaths) {
+    StopWatch stopWatch = StopWatch.createStarted();
     final String[] paths = Stream.concat(productSourcePaths.stream(), testSourcePaths.stream())
         .map(path -> path.getResolvedPath()
             .toString())
@@ -75,10 +77,16 @@ public class JDTASTConstruction {
     parser.createASTs(paths, null, new String[] {}, requestor, null);
 
     if (isConstructionSuccess(problems)) {
-      return new GeneratedSourceCode(productAsts, testAsts);
+      stopWatch.stop();
+      final GeneratedSourceCode sourceCode = new GeneratedSourceCode(productAsts, testAsts);
+      sourceCode.setGenASTTime(stopWatch.getTime());
+      return sourceCode;
     } else {
       final String messages = concatProblemMessages(problems);
-      return new GenerationFailedSourceCode(messages);
+      stopWatch.stop();
+      final GeneratedSourceCode sourceCode = new GenerationFailedSourceCode(messages);
+      sourceCode.setGenASTTime(stopWatch.getTime());
+      return sourceCode;
     }
   }
 

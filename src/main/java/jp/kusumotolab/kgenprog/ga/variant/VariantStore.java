@@ -235,6 +235,7 @@ public class VariantStore {
     final Single<BuildResults> buildSingle =
         sourceCode.shouldBeTested() ? strategies.execAsyncBuildExecutor(variantSingle)
             .cache() : Single.just(new EmptyBuildResults());
+
     final Single<TestResults> resultsSingle =
         sourceCode.shouldBeTested() ? strategies.execAsyncTestExecutor(buildSingle)
             .cache() : Single.just(new EmptyTestResults("build failed or reproduced."));
@@ -254,8 +255,8 @@ public class VariantStore {
 
     variant.subscribe();
 
-    measureEachProcessTime.addTestTime(variant.getTestResults().getTestTime());
     measureEachProcessTime.addBuildTime(buildSingle.blockingGet().buildTime);
+    measureEachProcessTime.addTestTime(resultsSingle.blockingGet().getTestTime());
     return variant;
   }
 

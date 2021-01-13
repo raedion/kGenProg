@@ -1,13 +1,8 @@
-package jp.kusumotolab.kgenprog.project.test;
+package jp.kusumotolab.kgenprog.project.build;
 
 import jp.kusumotolab.kgenprog.Configuration;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
-import jp.kusumotolab.kgenprog.project.build.BuildResults;
-import jp.kusumotolab.kgenprog.project.build.EmptyBuildResults;
-import jp.kusumotolab.kgenprog.project.build.ProjectBuilder;
-import java.util.List;
-import java.util.Collections;
 
 /**
  * junitテストをローカルマシン上で実行する．<br>

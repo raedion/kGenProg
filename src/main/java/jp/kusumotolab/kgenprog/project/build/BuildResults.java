@@ -48,7 +48,7 @@ public class BuildResults {
     this.buildProgressText = buildProgressText;
     this.isBuildFailed = isBuildFailed;
     this.buildTime = buildTime;
-//    System.out.println("Get BuildResults: Time is " + buildTime);
+//    if(buildTime > 0d) System.out.println("Get BuildResults: Time is " + buildTime);
   }
 
 }

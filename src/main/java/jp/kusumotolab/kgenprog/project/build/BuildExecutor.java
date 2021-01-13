@@ -1,4 +1,4 @@
-package jp.kusumotolab.kgenprog.project.test;
+package jp.kusumotolab.kgenprog.project.build;
 
 import io.reactivex.Single;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
