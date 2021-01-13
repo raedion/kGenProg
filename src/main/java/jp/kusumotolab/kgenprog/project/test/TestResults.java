@@ -36,7 +36,7 @@ public class TestResults {
    */
   public TestResults() {
     this.value = new HashMap<>();
-    this.testExecTime = Double.NaN;
+    this.testExecTime = 0d;
   }
 
   /**
@@ -45,7 +45,7 @@ public class TestResults {
   public TestResults(final BuildResults buildResults) {
     this.value = new HashMap<>();
     this.buildResults = buildResults;
-    this.testExecTime = Double.NaN;
+    this.testExecTime = 0d;
   }
 
   /**
@@ -57,6 +57,7 @@ public class TestResults {
     testResultList.forEach(testResult -> this.value.put(testResult.executedTestFQN, testResult));
     this.buildResults = buildResults;
     this.testExecTime = testExecTime;
+    System.out.println("TestTime: " + testExecTime);
   }
 
   /**

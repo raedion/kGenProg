@@ -1,9 +1,13 @@
 package jp.kusumotolab.kgenprog.project.test;
 
-import org.apache.commons.lang3.time.StopWatch;
 import jp.kusumotolab.kgenprog.Configuration;
+import jp.kusumotolab.kgenprog.ga.variant.Variant;
+import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
 import jp.kusumotolab.kgenprog.project.build.BuildResults;
+import jp.kusumotolab.kgenprog.project.build.EmptyBuildResults;
 import jp.kusumotolab.kgenprog.project.build.ProjectBuilder;
+import java.util.List;
+import java.util.Collections;
 
 /**
  * junitテストをローカルマシン上で実行する．<br>
@@ -13,24 +17,17 @@ import jp.kusumotolab.kgenprog.project.build.ProjectBuilder;
  *
  * @author shinsuke
  */
-public class LocalTestExecutor implements TestExecutor {
+public class LocalBuildExecutor implements BuildExecutor {
 
-  private final Configuration config;
   private final ProjectBuilder projectBuilder;
-  private double buildTime;
-  private long buildCount;
-  private long trybuildCount;
 
   /**
    * コンストラクタ．<br>
    *
    * @param config テスト実行に必要なプロジェクト設定情報
    */
-  public LocalTestExecutor(final Configuration config) {
-    this.config = config;
+  public LocalBuildExecutor(final Configuration config) {
     projectBuilder = new ProjectBuilder(config.getTargetProject());
-    this.buildTime = 0;
-    buildCount = 0;trybuildCount=0;
   }
 
   /**
@@ -38,11 +35,17 @@ public class LocalTestExecutor implements TestExecutor {
    * ビルド失敗時はEmptyTestResultsを返す．<br>
    */
   @Override
-  public TestResults exec(final BuildResults buildResults) {
-    final TestThread testThread = new TestThread(buildResults, config.getTargetProject(),
-        config.getExecutedTests(), config.getTestTimeLimitSeconds());
-    testThread.run();
-
-    return testThread.getTestResults();
+  public BuildResults exec(final Variant variant) {
+    final GeneratedSourceCode generatedSourceCode = variant.getGeneratedSourceCode();
+    if (!generatedSourceCode.isGenerationSuccess()) {
+      return new EmptyBuildResults();
+    }
+    final BuildResults buildResults = projectBuilder.build(generatedSourceCode);
+    if (buildResults.isBuildFailed) {
+      return new EmptyBuildResults(buildResults.diagnostics, buildResults.buildProgressText,
+          buildResults.buildTime);
+    }
+    return buildResults;
   }
 }
+

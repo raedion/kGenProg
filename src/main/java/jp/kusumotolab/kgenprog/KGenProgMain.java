@@ -19,8 +19,9 @@ import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.output.Exporters;
-import jp.kusumotolab.kgenprog.project.MeasureBuildAndTestTime;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
+import jp.kusumotolab.kgenprog.project.test.BuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestResult;
 import jp.kusumotolab.kgenprog.project.test.TestResults;
@@ -44,6 +45,7 @@ public class KGenProgMain {
   private final SourceCodeValidation sourceCodeValidation;
   private final VariantSelection variantSelection;
   private final TestExecutor testExecutor;
+  private final BuildExecutor buildExecutor;
   private final Exporters exporters;
   private final JDTASTConstruction astConstruction;
 
@@ -64,7 +66,7 @@ public class KGenProgMain {
       final Mutation mutation, final Crossover crossover,
       final SourceCodeGeneration sourceCodeGeneration,
       final SourceCodeValidation sourceCodeValidation, final VariantSelection variantSelection,
-      final TestExecutor testExecutor, final Exporters exporters) {
+      final TestExecutor testExecutor, final BuildExecutor buildExecutor, final Exporters exporters) {
 
     this.config = config;
     this.faultLocalization = faultLocalization;
@@ -74,6 +76,7 @@ public class KGenProgMain {
     this.sourceCodeValidation = sourceCodeValidation;
     this.variantSelection = variantSelection;
     this.testExecutor = testExecutor;
+    this.buildExecutor = buildExecutor;
     this.astConstruction = new JDTASTConstruction();
     this.exporters = exporters;
   }
@@ -85,17 +88,15 @@ public class KGenProgMain {
    * @return 得られた解（全てのテストケースを通過するプログラム）
    */
   public List<Variant> run() throws RuntimeException {
-    MeasureBuildAndTestTime measureBuildAndTestTime = new MeasureBuildAndTestTime();
     logConfig();
 
     testExecutor.initialize();
 
     final Strategies strategies = new Strategies(faultLocalization, astConstruction,
-        sourceCodeGeneration, sourceCodeValidation, testExecutor, variantSelection);
+        sourceCodeGeneration, sourceCodeValidation, testExecutor, buildExecutor, variantSelection);
     final VariantStore variantStore = new VariantStore(config, strategies);
     final Variant initialVariant = variantStore.getInitialVariant();
 //    measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
-    measureBuildAndTestTime.addTestTime(initialVariant.getTestResults().getTestTime());
 
     logInitialFailedTests(initialVariant.getTestResults());
 
@@ -122,10 +123,6 @@ public class KGenProgMain {
       // 世代別サマリの出力
       logGenerationSummary(stopwatch.toString(), variantsByMutation, variantsByCrossover);
       stopwatch.split();
-      variantStore.getAllVariants().forEach(variant -> {
-//        measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
-        measureBuildAndTestTime.addTestTime(variant.getTestResults().getTestTime());
-      });
       variantStore.updateVariantCounts(
           Stream.concat(variantsByMutation.stream(), variantsByCrossover.stream())
               .collect(Collectors.toList()));
@@ -161,10 +158,7 @@ public class KGenProgMain {
     logGAStopped(variantStore.getGenerationNumber(), variantStore.getVariantCount(),
         variantStore.getSyntaxValidVariantCount(), variantStore.getBuildSuccessVariantCount(),
         stopwatch.toString(), exitStatus);
-
-    measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
-    measureBuildAndTestTime.setBuildCount(testExecutor.getBuildCount());
-    log.info(measureBuildAndTestTime.getMessage());
+    log.info(variantStore.getMessage());
     return variantStore.getFoundSolutions(config.getRequiredSolutionsCount());
   }
 

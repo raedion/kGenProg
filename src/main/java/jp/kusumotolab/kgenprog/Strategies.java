@@ -13,8 +13,10 @@ import jp.kusumotolab.kgenprog.ga.variant.Gene;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.build.BuildResults;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
+import jp.kusumotolab.kgenprog.project.test.BuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestResults;
 
@@ -30,6 +32,7 @@ public class Strategies {
   private final JDTASTConstruction astConstruction;
   private final SourceCodeValidation sourceCodeValidation;
   private final TestExecutor testExecutor;
+  private final BuildExecutor buildExecutor;
   private final VariantSelection variantSelection;
 
   /**
@@ -43,13 +46,14 @@ public class Strategies {
    */
   public Strategies(final FaultLocalization faultLocalization,
       final JDTASTConstruction astConstruction, final SourceCodeGeneration sourceCodeGeneration,
-      final SourceCodeValidation sourceCodeValidation, final TestExecutor testExecutor,
+      final SourceCodeValidation sourceCodeValidation, final TestExecutor testExecutor, final BuildExecutor buildExecutor,
       final VariantSelection variantSelection) {
 
     this.faultLocalization = faultLocalization;
     this.astConstruction = astConstruction;
     this.sourceCodeGeneration = sourceCodeGeneration;
     this.sourceCodeValidation = sourceCodeValidation;
+    this.buildExecutor = buildExecutor;
     this.testExecutor = testExecutor;
     this.variantSelection = variantSelection;
   }
@@ -92,24 +96,27 @@ public class Strategies {
    * テスト実行を行うメソッド．<br>
    * テストの実行対象となる個体（ソースコード）を引数として渡し，テストの実行結果を返す．<br>
    *
-   * @param variant テストの実行対象となる個体（ソースコード）
+   * @param buildResults テストの実行対象となる個体（ソースコード）
    * @return テストの実行結果
    */
-  public TestResults execTestExecutor(final Variant variant) {
-    return testExecutor.exec(variant);
+  public TestResults execTestExecutor(final BuildResults buildResults) {
+    return testExecutor.exec(buildResults);
   }
 
   /**
    * テストの実行を非同期で行うメソッド．クラスタ環境で用いる．<br>
    * テストの実行対象となる個体（ソースコード）を引数として渡し，テストの実行結果を返す．<br>
    *
-   * @param variantSingle テストの実行対象となる個体（ソースコード）
+   * @param buildSingle テストの実行対象となる個体（ソースコード）
    * @return テストの実行結果
    */
-  public Single<TestResults> execAsyncTestExecutor(final Single<Variant> variantSingle) {
-    return testExecutor.execAsync(variantSingle);
+  public Single<TestResults> execAsyncTestExecutor(final Single<BuildResults> buildSingle) {
+    return testExecutor.execAsync(buildSingle);
   }
 
+  public Single<BuildResults> execAsyncBuildExecutor(final Single<Variant> variantSingle) {
+    return buildExecutor.execAsync(variantSingle);
+  }
   /**
    * ソースコードの評価を行うメソッド．<br>
    * ソースコードの評価に用いる情報を渡し，評価結果を返す．<br>

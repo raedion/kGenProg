@@ -11,16 +11,12 @@ import javax.tools.JavaFileObject;
  */
 public class EmptyBuildResults extends BuildResults {
 
-  /**
-   * @deprecated
-   */
-  @Deprecated
   public EmptyBuildResults() {
-    super(null, null, null, true);
+    super(null, null, null, true, 0d);
   }
 
   public EmptyBuildResults(final DiagnosticCollector<JavaFileObject> diagnostics,
-      final String buildProgressText) {
-    super(null, diagnostics, buildProgressText, true);
+      final String buildProgressText, final double buildTime) {
+    super(null, diagnostics, buildProgressText, true, buildTime);
   }
 }

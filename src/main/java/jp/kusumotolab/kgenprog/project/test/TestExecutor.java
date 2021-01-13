@@ -2,6 +2,7 @@ package jp.kusumotolab.kgenprog.project.test;
 
 import io.reactivex.Single;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
+import jp.kusumotolab.kgenprog.project.build.BuildResults;
 
 /**
  * テスト実行インタフェース．<br>
@@ -13,13 +14,13 @@ public interface TestExecutor {
   /**
    * テスト実行を行う．<br>
    *
-   * @param variant 実行対象のソースコードを保持するVariant
+   * @param buildResults 実行対象のソースコードを保持するVariant
    * @return テスト結果
    */
-  TestResults exec(final Variant variant);
+  TestResults exec(final BuildResults buildResults);
 
-  default Single<TestResults> execAsync(final Single<Variant> variantSingle) {
-    return variantSingle.map(this::exec);
+  default Single<TestResults> execAsync(final Single<BuildResults> buildSingle) {
+    return buildSingle.map(this::exec);
   }
 
   default void initialize() {
@@ -27,7 +28,4 @@ public interface TestExecutor {
 
   default void finish() {
   }
-
-  double getBuildTime();
-  long getBuildCount();
 }

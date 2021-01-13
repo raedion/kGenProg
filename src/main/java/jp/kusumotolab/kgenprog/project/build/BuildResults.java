@@ -31,6 +31,7 @@ public class BuildResults {
    */
   public final String buildProgressText;
 
+  public final double buildTime;
   /**
    * コンストラクタ．各種ビルド結果を保持する．
    *
@@ -41,11 +42,13 @@ public class BuildResults {
    */
   protected BuildResults(final BinaryStore binaryStore,
       final DiagnosticCollector<JavaFileObject> diagnostics, final String buildProgressText,
-      final boolean isBuildFailed) {
+      final boolean isBuildFailed, final double buildTime) {
     this.binaryStore = binaryStore;
     this.diagnostics = diagnostics;
     this.buildProgressText = buildProgressText;
     this.isBuildFailed = isBuildFailed;
+    this.buildTime = buildTime;
+//    System.out.println("Get BuildResults: Time is " + buildTime);
   }
 
 }

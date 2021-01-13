@@ -21,6 +21,8 @@ import jp.kusumotolab.kgenprog.ga.validation.DefaultCodeValidation;
 import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.output.Exporters;
+import jp.kusumotolab.kgenprog.project.test.BuildExecutor;
+import jp.kusumotolab.kgenprog.project.test.LocalBuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.LocalTestExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
 
@@ -62,10 +64,11 @@ public class CUILauncher {
     final VariantSelection variantSelection = new DefaultVariantSelection(config.getHeadcount(),
         random);
     final TestExecutor testExecutor = new LocalTestExecutor(config);
+    final BuildExecutor buildExecutor = new LocalBuildExecutor(config);
     final Exporters exporters = new Exporters(config);
     final KGenProgMain kGenProgMain =
         new KGenProgMain(config, faultLocalization, mutation, crossover, sourceCodeGeneration,
-            sourceCodeValidation, variantSelection, testExecutor, exporters);
+            sourceCodeValidation, variantSelection, testExecutor, buildExecutor, exporters);
 
     return kGenProgMain.run();
   }
