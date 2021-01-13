@@ -12,7 +12,7 @@ import javax.tools.JavaFileObject;
 public class EmptyBuildResults extends BuildResults {
 
   public EmptyBuildResults() {
-    super(null, null, null, true, 0d);
+    super(null, null, null, true, Double.NaN);
   }
 
   public EmptyBuildResults(final DiagnosticCollector<JavaFileObject> diagnostics,

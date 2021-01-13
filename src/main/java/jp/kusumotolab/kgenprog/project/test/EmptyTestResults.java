@@ -90,6 +90,6 @@ public class EmptyTestResults extends TestResults {
    */
   @Override
   public double getTestTime() {
-    return 0d;
+    return Double.NaN;
   }
 }

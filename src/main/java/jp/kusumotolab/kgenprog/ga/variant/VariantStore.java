@@ -218,7 +218,7 @@ public class VariantStore {
   private Variant createInitialVariant() {
     final GeneratedSourceCode sourceCode =
         strategies.execASTConstruction(config.getTargetProject());
-    measureEachProcessTime.addASTGenTime(sourceCode.getGenASTTime());
+    measureEachProcessTime.setFirstGenASTTime(sourceCode.getGenASTTime());
     final HistoricalElement newElement = new OriginalHistoricalElement();
     return createVariant(new Gene(Collections.emptyList()), sourceCode,
         elementReplacer.apply(newElement));
@@ -290,6 +290,6 @@ public class VariantStore {
   }
 
   public String getMessage() {
-    return measureEachProcessTime.getMessage();
+    return measureEachProcessTime.getMessage(true);
   }
 }

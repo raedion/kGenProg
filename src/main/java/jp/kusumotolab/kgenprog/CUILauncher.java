@@ -2,6 +2,7 @@ package jp.kusumotolab.kgenprog;
 
 import java.util.List;
 import java.util.Random;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
@@ -32,7 +33,10 @@ public class CUILauncher {
     try {
       final Configuration config = Configuration.Builder.buildFromCmdLineArgs(args);
       final CUILauncher launcher = new CUILauncher();
+      final StopWatch stopWatch = StopWatch.createStarted();
       launcher.launch(config);
+      stopWatch.stop();
+      System.out.println("Whole time[ms]: " + stopWatch.getTime());
     } catch (final RuntimeException e) {
       Logger log = LoggerFactory.getLogger(CUILauncher.class);
       log.error(e.getMessage(), e);
