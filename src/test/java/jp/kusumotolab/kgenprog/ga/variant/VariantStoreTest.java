@@ -18,13 +18,12 @@ import jp.kusumotolab.kgenprog.fl.Suspiciousness;
 import jp.kusumotolab.kgenprog.ga.validation.Fitness;
 import jp.kusumotolab.kgenprog.ga.validation.SimpleFitness;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
+import jp.kusumotolab.kgenprog.project.build.LocalBuildExecutor;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.factory.TargetProjectFactory;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
-import jp.kusumotolab.kgenprog.project.test.EmptyTestResults;
-import jp.kusumotolab.kgenprog.project.test.LocalTestExecutor;
-import jp.kusumotolab.kgenprog.project.test.TestExecutor;
-import jp.kusumotolab.kgenprog.project.test.TestResults;
+import jp.kusumotolab.kgenprog.project.test.*;
 
 
 public class VariantStoreTest {
@@ -203,6 +202,7 @@ public class VariantStoreTest {
 
   private Strategies createMockStrategies(final Configuration config) {
     final TestExecutor testExecutor = new LocalTestExecutor(config);
+    final BuildExecutor buildExecutor = new LocalBuildExecutor(config);
     final JDTASTConstruction jdtastConstruction = new JDTASTConstruction();
     final Strategies strategies = mock(Strategies.class);
 
@@ -214,7 +214,7 @@ public class VariantStoreTest {
     when(strategies.execFaultLocalization(any(), any())).then(v -> Collections.emptyList());
     when(strategies.execAsyncTestExecutor(any())).then(v -> {
       final Single<Variant> variantSingle = v.getArgument(0);
-      return testExecutor.execAsync(variantSingle);
+      return testExecutor.execAsync(buildExecutor.execAsync(variantSingle));
     });
     return strategies;
   }

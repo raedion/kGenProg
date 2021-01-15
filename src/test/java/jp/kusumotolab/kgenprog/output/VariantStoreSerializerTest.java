@@ -31,13 +31,12 @@ import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.project.ASTLocation;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
+import jp.kusumotolab.kgenprog.project.build.LocalBuildExecutor;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.factory.TargetProjectFactory;
 import jp.kusumotolab.kgenprog.project.jdt.DeleteOperation;
-import jp.kusumotolab.kgenprog.project.test.LocalTestExecutor;
-import jp.kusumotolab.kgenprog.project.test.TestExecutor;
-import jp.kusumotolab.kgenprog.project.test.TestResult;
-import jp.kusumotolab.kgenprog.project.test.TestResults;
+import jp.kusumotolab.kgenprog.project.test.*;
 import jp.kusumotolab.kgenprog.testutil.JsonKeyAlias;
 import jp.kusumotolab.kgenprog.testutil.JsonKeyAlias.CrossoverHistoricalElement;
 
@@ -78,6 +77,7 @@ public class VariantStoreSerializerTest {
     final GeneratedSourceCode astConstructionResult =
         new GeneratedSourceCode(Collections.emptyList(), Collections.emptyList());
     final TestExecutor testExecutor = new LocalTestExecutor(config);
+    final BuildExecutor buildExecutor = new LocalBuildExecutor(config);
     final Strategies strategies = mock(Strategies.class);
     when(strategies.execFaultLocalization(any(), any())).thenReturn(faultLocalizationResult);
     when(strategies.execSourceCodeGeneration(any(), any())).thenReturn(sourceCodeGenerationResult);
@@ -87,7 +87,7 @@ public class VariantStoreSerializerTest {
     when(strategies.execVariantSelection(any(), any())).thenReturn(Collections.emptyList());
     when(strategies.execAsyncTestExecutor(any())).then(v -> {
       final Single<Variant> variantSingle = v.getArgument(0);
-      return testExecutor.execAsync(variantSingle);
+      return testExecutor.execAsync(buildExecutor.execAsync(variantSingle));
     });
 
     final VariantStore variantStore = new VariantStore(config, strategies);
