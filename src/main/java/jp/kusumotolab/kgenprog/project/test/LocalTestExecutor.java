@@ -16,10 +16,6 @@ import jp.kusumotolab.kgenprog.project.build.ProjectBuilder;
 public class LocalTestExecutor implements TestExecutor {
 
   private final Configuration config;
-  private final ProjectBuilder projectBuilder;
-  private double buildTime;
-  private long buildCount;
-  private long trybuildCount;
 
   /**
    * コンストラクタ．<br>
@@ -28,9 +24,6 @@ public class LocalTestExecutor implements TestExecutor {
    */
   public LocalTestExecutor(final Configuration config) {
     this.config = config;
-    projectBuilder = new ProjectBuilder(config.getTargetProject());
-    this.buildTime = 0;
-    buildCount = 0;trybuildCount=0;
   }
 
   /**
