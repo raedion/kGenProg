@@ -42,7 +42,7 @@ public class VariantStore {
   private int variantCount;
   private int syntaxValidVariantCount;
   private int buildSuccessVariantCount;
-  private MeasureEachProcessTime measureEachProcessTime;
+  private final MeasureEachProcessTime measureEachProcessTime;
 
   /**
    * @param config 設定
@@ -52,7 +52,7 @@ public class VariantStore {
     this.config = config;
     this.strategies = strategies;
 
-    measureEachProcessTime = new MeasureEachProcessTime();
+    measureEachProcessTime = strategies.getMeasure();   // 2021/01/18
     variantCounter = new AtomicLong();
     generation = new OrdinalNumber(0);
     elementReplacer = newElementReplacer(config.isHistoryRecord());
@@ -287,9 +287,5 @@ public class VariantStore {
     buildSuccessVariantCount += variants.stream()
         .filter(Variant::isBuildSucceeded)
         .count();
-  }
-
-  public String getMessage() {
-    return measureEachProcessTime.getMessage(true);
   }
 }

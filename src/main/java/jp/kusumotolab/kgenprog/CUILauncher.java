@@ -5,6 +5,7 @@ import java.util.Random;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.errorprone.annotations.Var;
 import ch.qos.logback.classic.Level;
 import jp.kusumotolab.kgenprog.fl.FaultLocalization;
 import jp.kusumotolab.kgenprog.ga.codegeneration.DefaultSourceCodeGeneration;
@@ -22,6 +23,7 @@ import jp.kusumotolab.kgenprog.ga.validation.DefaultCodeValidation;
 import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.output.Exporters;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
 import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
 import jp.kusumotolab.kgenprog.project.build.LocalBuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.LocalTestExecutor;
@@ -33,10 +35,7 @@ public class CUILauncher {
     try {
       final Configuration config = Configuration.Builder.buildFromCmdLineArgs(args);
       final CUILauncher launcher = new CUILauncher();
-      final StopWatch stopWatch = StopWatch.createStarted();
       launcher.launch(config);
-      stopWatch.stop();
-      System.out.println("Whole time[ms]: " + stopWatch.getTime());
     } catch (final RuntimeException e) {
       Logger log = LoggerFactory.getLogger(CUILauncher.class);
       log.error(e.getMessage(), e);
@@ -46,6 +45,7 @@ public class CUILauncher {
 
   public List<Variant> launch(final Configuration config) {
     setLogLevel(config.getLogLevel());
+    final StopWatch stopWatch = StopWatch.createStarted();
 
     final FaultLocalization faultLocalization = config.getFaultLocalization()
         .initialize();
@@ -70,11 +70,18 @@ public class CUILauncher {
     final TestExecutor testExecutor = new LocalTestExecutor(config);
     final BuildExecutor buildExecutor = new LocalBuildExecutor(config);
     final Exporters exporters = new Exporters(config);
+    final MeasureEachProcessTime measure = new MeasureEachProcessTime(config);
     final KGenProgMain kGenProgMain =
         new KGenProgMain(config, faultLocalization, mutation, crossover, sourceCodeGeneration,
-            sourceCodeValidation, variantSelection, testExecutor, buildExecutor, exporters);
+            sourceCodeValidation, variantSelection, testExecutor, buildExecutor, exporters, measure);
 
-    return kGenProgMain.run();
+    final List<Variant> run = kGenProgMain.run();
+
+    stopWatch.stop();
+    measure.setWholeTime(stopWatch.getTime());
+    Logger log = LoggerFactory.getLogger(CUILauncher.class);
+    log.info(measure.getMessage(true));       // 2021/01/18 各時間の出力に全体時間の情報を追加するために移動
+    return run;
   }
 
   private void setLogLevel(final Level logLevel) {

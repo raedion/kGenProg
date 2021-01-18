@@ -19,6 +19,7 @@ import jp.kusumotolab.kgenprog.ga.validation.SourceCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.output.Exporters;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
 import jp.kusumotolab.kgenprog.project.build.BuildExecutor;
 import jp.kusumotolab.kgenprog.project.test.TestExecutor;
@@ -47,6 +48,7 @@ public class KGenProgMain {
   private final BuildExecutor buildExecutor;
   private final Exporters exporters;
   private final JDTASTConstruction astConstruction;
+  private final MeasureEachProcessTime measureEachProcessTime;
 
   /**
    * コンストラクタ．自動プログラム修正に必要な全ての情報を渡す必要あり．
@@ -65,7 +67,8 @@ public class KGenProgMain {
       final Mutation mutation, final Crossover crossover,
       final SourceCodeGeneration sourceCodeGeneration,
       final SourceCodeValidation sourceCodeValidation, final VariantSelection variantSelection,
-      final TestExecutor testExecutor, final BuildExecutor buildExecutor, final Exporters exporters) {
+      final TestExecutor testExecutor, final BuildExecutor buildExecutor, final Exporters exporters,
+      final MeasureEachProcessTime measureEachProcessTime) {
 
     this.config = config;
     this.faultLocalization = faultLocalization;
@@ -78,6 +81,7 @@ public class KGenProgMain {
     this.buildExecutor = buildExecutor;
     this.astConstruction = new JDTASTConstruction();
     this.exporters = exporters;
+    this.measureEachProcessTime = measureEachProcessTime;
   }
 
   /**
@@ -92,7 +96,8 @@ public class KGenProgMain {
     testExecutor.initialize();
 
     final Strategies strategies = new Strategies(faultLocalization, astConstruction,
-        sourceCodeGeneration, sourceCodeValidation, testExecutor, buildExecutor, variantSelection);
+        sourceCodeGeneration, sourceCodeValidation, testExecutor, buildExecutor, variantSelection,
+        measureEachProcessTime);
     final VariantStore variantStore = new VariantStore(config, strategies);
     final Variant initialVariant = variantStore.getInitialVariant();
 //    measureBuildAndTestTime.addBuildTime(testExecutor.getBuildTime());
@@ -157,7 +162,6 @@ public class KGenProgMain {
     logGAStopped(variantStore.getGenerationNumber(), variantStore.getVariantCount(),
         variantStore.getSyntaxValidVariantCount(), variantStore.getBuildSuccessVariantCount(),
         stopwatch.toString(), exitStatus);
-    log.info(variantStore.getMessage());
     return variantStore.getFoundSolutions(config.getRequiredSolutionsCount());
   }
 

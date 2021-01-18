@@ -20,7 +20,7 @@ public class GeneratedSourceCode {
   private final List<GeneratedAST<TestSourcePath>> testAsts;
   private final Map<SourcePath, GeneratedAST<ProductSourcePath>> pathToAst;
   private final String messageDigest;
-  private double genASTTime = 0d;
+  private double genASTTime = Double.NaN;
 
   /**
    * @param productAsts ProductソースコードのAST

@@ -13,6 +13,7 @@ import jp.kusumotolab.kgenprog.ga.variant.Gene;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
 import jp.kusumotolab.kgenprog.project.build.BuildResults;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
@@ -34,6 +35,7 @@ public class Strategies {
   private final TestExecutor testExecutor;
   private final BuildExecutor buildExecutor;
   private final VariantSelection variantSelection;
+  private final MeasureEachProcessTime measure;
 
   /**
    * コンストラクタ．自動プログラム修正を行う際に利用する戦略を渡す必要あり．
@@ -47,7 +49,7 @@ public class Strategies {
   public Strategies(final FaultLocalization faultLocalization,
       final JDTASTConstruction astConstruction, final SourceCodeGeneration sourceCodeGeneration,
       final SourceCodeValidation sourceCodeValidation, final TestExecutor testExecutor, final BuildExecutor buildExecutor,
-      final VariantSelection variantSelection) {
+      final VariantSelection variantSelection, final MeasureEachProcessTime measureEachProcessTime) {
 
     this.faultLocalization = faultLocalization;
     this.astConstruction = astConstruction;
@@ -56,6 +58,7 @@ public class Strategies {
     this.buildExecutor = buildExecutor;
     this.testExecutor = testExecutor;
     this.variantSelection = variantSelection;
+    this.measure = measureEachProcessTime;
   }
 
   /**
@@ -150,5 +153,9 @@ public class Strategies {
   public List<Variant> execVariantSelection(final List<Variant> current,
       final List<Variant> generated) {
     return variantSelection.exec(current, generated);
+  }
+
+  public MeasureEachProcessTime getMeasure() {    // VariantStoreのコンストラクタに入れると他のテスト実行も変更しないといけないのでこちらで管理
+    return measure;
   }
 }

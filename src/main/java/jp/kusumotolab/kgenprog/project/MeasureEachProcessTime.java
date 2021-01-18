@@ -1,5 +1,12 @@
 package jp.kusumotolab.kgenprog.project;
 
+import static java.lang.System.lineSeparator;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import org.apache.commons.lang3.time.StopWatch;
+import jp.kusumotolab.kgenprog.Configuration;
+
 public class MeasureEachProcessTime {
 
   // フィールド変数
@@ -10,13 +17,26 @@ public class MeasureEachProcessTime {
   private double allGenASTTime;
   private long genASTCount;
   private double firstGenASTTime;
+  private double wholeTime;
+  private final String targetProjectName;
+  private final String outputFileName;
+  private final String nowHourAndMinute;
 
   // コンストラクタ部
 
   /**
    * 各フィールド変数の初期化
    */
-  public MeasureEachProcessTime() {
+  public MeasureEachProcessTime(Configuration config) {
+    targetProjectName = config.getTargetProject()
+        .toString();
+    LocalDateTime nowTime = LocalDateTime.now();
+    final String outputFolder = "kgp_log/";
+    outputFileName =
+        outputFolder + nowTime.getYear() + "-" +
+            nowTime.getMonthValue() + "-" +
+            nowTime.getDayOfMonth() + ".txt";
+    nowHourAndMinute = nowTime.getHour() + ":" + nowTime.getMinute();
     this.allBuildTime = 0d;
     this.allTestTime = 0d;
     this.allGenASTTime = 0d;
@@ -32,7 +52,7 @@ public class MeasureEachProcessTime {
   }
 
   public void addTestTime(final double testTime) {
-    if (Double.compare(testTime, Double.NaN) == 0) {
+    if (Double.isNaN(testTime)) {
       return;
     }
     testCount++;
@@ -40,7 +60,7 @@ public class MeasureEachProcessTime {
   }
 
   public void addASTGenTime(final double genASTTime) {
-    if (Double.compare(genASTTime, Double.NaN) == 0) {
+    if (Double.isNaN(genASTTime)) {
       return;
     }
     genASTCount++;
@@ -55,29 +75,58 @@ public class MeasureEachProcessTime {
     this.buildCount = buildCount;
   }
 
+  public void setWholeTime(final double wholeTime) {
+    this.wholeTime = wholeTime;
+  }
+
   public String getMessage(final boolean selectOutputCount) {
-    return String.format(
-        getCountMessage(selectOutputCount) +
-            "\nAll Build time [ms]: %s" +
-            "\nAll Test time[ms]: %s" +
-            "\nFirst Gen AST time[ms]: %s" +
-            "\nAll AST generate time[ms]: %s",
+    StopWatch stopWatch = StopWatch.createStarted();
+    final String message = String.format(
+        getCountMessage(selectOutputCount) + lineSeparator() +
+            "All Build time [ms]: %s" + lineSeparator() +
+            "All Test time[ms]: %s" + lineSeparator() +
+            "First Gen AST time[ms]: %s" + lineSeparator() +
+            "All AST generate time[ms]: %s" + lineSeparator() +
+            "Whole time[ms]: %s",
         allBuildTime,
         allTestTime,
         firstGenASTTime,
-        allGenASTTime
+        allGenASTTime,
+        wholeTime
     );
+    outputIOData(true, message);
+    stopWatch.stop();
+    System.out.println("IO output time[ms]: " + stopWatch.getTime());
+    return message;
   }
 
   private String getCountMessage(final boolean selectOutputCount) {
     return selectOutputCount ? String.
         format(
-            "\nBuild Count: %s" +
-                "\nTest Count: %s" +
-                "\nGen AST Count: %s",
+            lineSeparator() + "Build Count: %s" +
+                lineSeparator() + "Test Count: %s" +
+                lineSeparator() + "Gen AST Count: %s",
             buildCount,
             testCount,
             genASTCount
         ) : "";
+  }
+
+  private void outputIOData(final boolean selectOutputIO, final String message) {
+    if (!selectOutputIO) {
+      return;
+    }
+    try {
+      FileWriter fw = new FileWriter(outputFileName, true);
+      fw.write(
+          "---------------------" + lineSeparator() +
+              "ExecTime: " + nowHourAndMinute + lineSeparator() +
+              "ProjectFile: " + targetProjectName + lineSeparator() +
+              message + lineSeparator()
+      );
+      fw.close();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
   }
 }

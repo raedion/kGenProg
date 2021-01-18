@@ -16,6 +16,7 @@ import jp.kusumotolab.kgenprog.ga.validation.DefaultCodeValidation;
 import jp.kusumotolab.kgenprog.ga.variant.Variant;
 import jp.kusumotolab.kgenprog.ga.variant.VariantStore;
 import jp.kusumotolab.kgenprog.project.GeneratedSourceCode;
+import jp.kusumotolab.kgenprog.project.MeasureEachProcessTime;
 import jp.kusumotolab.kgenprog.project.factory.TargetProject;
 import jp.kusumotolab.kgenprog.project.jdt.JDTASTConstruction;
 import jp.kusumotolab.kgenprog.project.build.LocalBuildExecutor;
@@ -56,7 +57,8 @@ public class TestUtil {
   private static Strategies createDefaultStrategies(final Configuration config) {
     return new Strategies(new Ochiai(), new JDTASTConstruction(), new DefaultSourceCodeGeneration(),
         new DefaultCodeValidation(), new LocalTestExecutor(config), new LocalBuildExecutor(config),
-        new DefaultVariantSelection(0, new Random(0)));
+        new DefaultVariantSelection(0, new Random(0)),
+        new MeasureEachProcessTime(config));
   }
 
 }
