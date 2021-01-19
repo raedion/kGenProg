@@ -162,6 +162,7 @@ public class KGenProgMain {
     logGAStopped(variantStore.getGenerationNumber(), variantStore.getVariantCount(),
         variantStore.getSyntaxValidVariantCount(), variantStore.getBuildSuccessVariantCount(),
         stopwatch.toString(), exitStatus);
+    measureEachProcessTime.setExitStatusMsg(exitStatus.getCode());
     return variantStore.getFoundSolutions(config.getRequiredSolutionsCount());
   }
 

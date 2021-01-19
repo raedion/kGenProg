@@ -67,7 +67,7 @@ public class DefaultSourceCodeGeneration implements SourceCodeGeneration {
     if (sourceCodeMap.containsKey((generatedSourceCode.getMessageDigest()))) {
       final ReproducedStatus status = sourceCodeMap.get(generatedSourceCode.getMessageDigest());
       status.incrementCounter();
-      generatedSourceCode = new ReproducedSourceCode(status);
+      generatedSourceCode = new ReproducedSourceCode(status, stopWatch.getTime());
     } else {
       putSourceCode(generatedSourceCode);
     }

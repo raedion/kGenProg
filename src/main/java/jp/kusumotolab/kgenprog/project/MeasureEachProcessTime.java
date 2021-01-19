@@ -4,7 +4,6 @@ import static java.lang.System.lineSeparator;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import org.apache.commons.lang3.time.StopWatch;
 import jp.kusumotolab.kgenprog.Configuration;
 
 public class MeasureEachProcessTime {
@@ -21,6 +20,7 @@ public class MeasureEachProcessTime {
   private final String targetProjectName;
   private final String outputFileName;
   private final String nowHourAndMinute;
+  private String exitStatusMsg;
 
   // コンストラクタ部
 
@@ -33,7 +33,8 @@ public class MeasureEachProcessTime {
     LocalDateTime nowTime = LocalDateTime.now();
     final String outputFolder = "kgp_log/";
     outputFileName =
-        outputFolder + nowTime.getYear() + "-" +
+        outputFolder +
+            nowTime.getYear() + "-" +
             nowTime.getMonthValue() + "-" +
             nowTime.getDayOfMonth() + ".txt";
     nowHourAndMinute = nowTime.getHour() + ":" + nowTime.getMinute();
@@ -44,7 +45,7 @@ public class MeasureEachProcessTime {
   }
 
   public void addBuildTime(final double buildTime) {
-    if (Double.compare(buildTime, Double.NaN) == 0) {
+    if (Double.isNaN(buildTime)) {
       return;
     }
     buildCount++;
@@ -75,12 +76,15 @@ public class MeasureEachProcessTime {
     this.buildCount = buildCount;
   }
 
+  public void setExitStatusMsg(final String exitStatusMsg) {
+    this.exitStatusMsg = exitStatusMsg;
+  }
+
   public void setWholeTime(final double wholeTime) {
     this.wholeTime = wholeTime;
   }
 
   public String getMessage(final boolean selectOutputCount) {
-    StopWatch stopWatch = StopWatch.createStarted();
     final String message = String.format(
         getCountMessage(selectOutputCount) + lineSeparator() +
             "All Build time [ms]: %s" + lineSeparator() +
@@ -95,8 +99,6 @@ public class MeasureEachProcessTime {
         wholeTime
     );
     outputIOData(true, message);
-    stopWatch.stop();
-    System.out.println("IO output time[ms]: " + stopWatch.getTime());
     return message;
   }
 
@@ -122,7 +124,8 @@ public class MeasureEachProcessTime {
           "---------------------" + lineSeparator() +
               "ExecTime: " + nowHourAndMinute + lineSeparator() +
               "ProjectFile: " + targetProjectName + lineSeparator() +
-              message + lineSeparator()
+              message + lineSeparator() +
+              "ExitStatus: " + exitStatusMsg + lineSeparator()
       );
       fw.close();
     } catch (IOException ex) {
