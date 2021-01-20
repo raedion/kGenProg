@@ -18,6 +18,7 @@ public class MeasureEachProcessTime {
   private double firstGenASTTime;
   private double wholeTime;
   private final String targetProjectName;
+  private final String configMsg;
   private final String outputFileName;
   private final String nowHourAndMinute;
   private String exitStatusMsg;
@@ -30,6 +31,12 @@ public class MeasureEachProcessTime {
   public MeasureEachProcessTime(Configuration config) {
     targetProjectName = config.getTargetProject()
         .toString();
+    configMsg = String.format(
+        "getMutationGeneratingCount: %s" + lineSeparator() +
+            "getCrossoverGeneratingCount %s" + lineSeparator(),
+        config.getMutationGeneratingCount(),
+        config.getCrossoverGeneratingCount()
+    );
     LocalDateTime nowTime = LocalDateTime.now();
     final String outputFolder = "kgp_log/";
     outputFileName =
@@ -105,9 +112,9 @@ public class MeasureEachProcessTime {
   private String getCountMessage(final boolean selectOutputCount) {
     return selectOutputCount ? String.
         format(
-            lineSeparator() + "Build Count: %s" +
-                lineSeparator() + "Test Count: %s" +
-                lineSeparator() + "Gen AST Count: %s",
+             "Build Count: %s" + lineSeparator() +
+                "Test Count: %s" + lineSeparator() +
+                 "Gen AST Count: %s" + lineSeparator(),
             buildCount,
             testCount,
             genASTCount
@@ -124,6 +131,7 @@ public class MeasureEachProcessTime {
           "---------------------" + lineSeparator() +
               "ExecTime: " + nowHourAndMinute + lineSeparator() +
               "ProjectFile: " + targetProjectName + lineSeparator() +
+              configMsg + lineSeparator() +
               message + lineSeparator() +
               "ExitStatus: " + exitStatusMsg + lineSeparator()
       );
